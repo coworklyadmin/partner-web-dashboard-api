@@ -4,7 +4,7 @@ import os
 import base64
 import json
 import requests
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Union
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 
@@ -58,23 +58,33 @@ class AmplitudeService:
     
     def get_event_metrics(
         self, 
-        partner_space_id: str, 
+        partner_space_ids: Union[str, List[str]], 
         event_name: str,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None
     ) -> int:
-        """Get event count for a specific event and partner space."""
+        """Get event count for a specific event and partner space(s)."""
         if not start_date:
             start_date = datetime.now() - timedelta(days=30)
         if not end_date:
             end_date = datetime.now()
         
+        # Convert single space ID to list for consistency
+        if isinstance(partner_space_ids, str):
+            partner_space_ids = [partner_space_ids]
+        
         # Build event filter as JSON string
         event_filter = {"event_type": event_name}
         
         # Add partner_space_id filter if provided
-        if partner_space_id:
-            event_filter["user_properties"] = {"partner_space_id": partner_space_id}
+        if partner_space_ids:
+            if len(partner_space_ids) == 1:
+                # Single space ID - use simple equality
+                event_filter["user_properties"] = {"partner_space_id": partner_space_ids[0]}
+            else:
+                # Multiple space IDs - use OR condition
+                # Amplitude supports OR conditions with array syntax
+                event_filter["user_properties"] = {"partner_space_id": partner_space_ids}
         
         params = {
             "e": json.dumps(event_filter),
@@ -105,11 +115,11 @@ class AmplitudeService:
     
     def get_dashboard_metrics(
         self, 
-        partner_space_id: str,
+        partner_space_ids: Union[str, List[str]],
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None
     ) -> Dict[str, int]:
-        """Get all dashboard metrics for a partner space within a date range."""
+        """Get all dashboard metrics for partner space(s) within a date range."""
         target_events = [
             "partner_profile_navigation",
             "add_favorite", 
@@ -127,7 +137,7 @@ class AmplitudeService:
             # Convert event name to camelCase for response
             metric_key = self._event_to_metric_key(event)
             count = self.get_event_metrics(
-                partner_space_id, 
+                partner_space_ids, 
                 event, 
                 start_date=start_date, 
                 end_date=end_date

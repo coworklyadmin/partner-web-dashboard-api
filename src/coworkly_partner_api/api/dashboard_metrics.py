@@ -1,6 +1,6 @@
 """Dashboard metrics API routes."""
 
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Query
 
@@ -15,6 +15,7 @@ router = APIRouter(prefix="/dashboard-metrics", tags=["dashboard-metrics"])
 @router.get("/")
 async def get_dashboard_metrics(
     uid: str = Depends(verify_firebase_token),
+    space_ids: Optional[List[str]] = Query(None, description="Comma-separated list of space IDs to query"),
     start_date: Optional[str] = Query(None, description="Start date in YYYY-MM-DD format"),
     end_date: Optional[str] = Query(None, description="End date in YYYY-MM-DD format")
 ):
@@ -49,27 +50,42 @@ async def get_dashboard_metrics(
                 detail="start_date cannot be after end_date"
             )
         
-        # Get user profile to extract spaceId
-        db = get_firestore_client()
-        user_profile_ref = db.collection('partner_profiles').document(uid)
-        user_profile = user_profile_ref.get()
-        
-        if not user_profile.exists:
-            raise HTTPException(status_code=404, detail="User profile not found")
-        
-        user_data = doc_to_dict(user_profile)
-        space_id = user_data.get('spaceId')
-        
-        if not space_id:
-            raise HTTPException(
-                status_code=400, 
-                detail="Partner space ID not found in user profile"
-            )
+        # Handle space_ids parameter
+        if space_ids is None:
+            # Fallback to getting space IDs from user profile
+            db = get_firestore_client()
+            user_profile_ref = db.collection('partner_profiles').document(uid)
+            user_profile = user_profile_ref.get()
+            
+            if not user_profile.exists:
+                raise HTTPException(status_code=404, detail="User profile not found")
+            
+            user_data = doc_to_dict(user_profile)
+            user_space_ids = user_data.get('spaceIds', [])  # Now expecting array of strings
+            
+            if not user_space_ids:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Partner space IDs not found in user profile"
+                )
+            
+            # If it's a single string, convert to list
+            if isinstance(user_space_ids, str):
+                user_space_ids = [user_space_ids]
+            
+            space_ids = user_space_ids
+        else:
+            # Validate that space_ids is a list
+            if not isinstance(space_ids, list) or len(space_ids) == 0:
+                raise HTTPException(
+                    status_code=400,
+                    detail="space_ids must be a non-empty list"
+                )
         
         # Get Amplitude service and fetch metrics
         amplitude_service = get_amplitude_service()
         metrics_data = amplitude_service.get_dashboard_metrics(
-            space_id, 
+            space_ids, 
             start_date=parsed_start_date, 
             end_date=parsed_end_date
         )

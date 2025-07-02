@@ -64,7 +64,7 @@ class TestDashboardMetrics:
             mock_user_doc.to_dict.return_value = {
                 'id': 'test-user-id',
                 'status': 'active',
-                'spaceId': 'test-space-id'
+                'spaceIds': ['test-space-id']
             }
             mock_user_doc.id = 'test-user-id'
             
@@ -102,7 +102,7 @@ class TestDashboardMetrics:
             
             # Verify calls
             mock_firestore.collection.assert_called_once_with('partner_profiles')
-            mock_amplitude_service.get_dashboard_metrics.assert_called_once_with('test-space-id', start_date=None, end_date=None)
+            mock_amplitude_service.get_dashboard_metrics.assert_called_once_with(['test-space-id'], start_date=None, end_date=None)
         finally:
             app.dependency_overrides = {}
     
@@ -125,7 +125,7 @@ class TestDashboardMetrics:
             mock_user_doc.to_dict.return_value = {
                 'id': 'test-user-id',
                 'status': 'active',
-                'spaceId': 'test-space-id'
+                'spaceIds': ['test-space-id']
             }
             mock_user_doc.id = 'test-user-id'
             
@@ -158,7 +158,7 @@ class TestDashboardMetrics:
             # Verify calls with date parameters
             mock_amplitude_service.get_dashboard_metrics.assert_called_once()
             call_args = mock_amplitude_service.get_dashboard_metrics.call_args
-            assert call_args[0][0] == 'test-space-id'  # space_id
+            assert call_args[0][0] == ['test-space-id']  # space_ids
             assert call_args[1]['start_date'] == datetime(2024, 1, 1)
             assert call_args[1]['end_date'] == datetime(2024, 1, 31)
         finally:
@@ -182,7 +182,7 @@ class TestDashboardMetrics:
             mock_user_doc.to_dict.return_value = {
                 'id': 'test-user-id',
                 'status': 'active',
-                'spaceId': 'test-space-id'
+                'spaceIds': ['test-space-id']
             }
             mock_user_doc.id = 'test-user-id'
             
@@ -218,7 +218,7 @@ class TestDashboardMetrics:
             mock_user_doc.to_dict.return_value = {
                 'id': 'test-user-id',
                 'status': 'active',
-                'spaceId': 'test-space-id'
+                'spaceIds': ['test-space-id']
             }
             mock_user_doc.id = 'test-user-id'
             
@@ -266,25 +266,25 @@ class TestDashboardMetrics:
         finally:
             app.dependency_overrides = {}
     
-    def test_get_dashboard_metrics_no_space_id(
+    def test_get_dashboard_metrics_no_space_ids(
         self, 
         client, 
         mock_firestore,
         mock_verify_firebase_token
     ):
-        """Test error when user profile has no spaceId."""
+        """Test error when user profile has no spaceIds."""
         # Override the dependency for this test
         import src.coworkly_partner_api.api.dashboard_metrics as dashboard_metrics_module
         app.dependency_overrides[dashboard_metrics_module.verify_firebase_token] = mock_verify_firebase_token
         
         try:
-            # Mock user profile data without spaceId
+            # Mock user profile data without spaceIds
             mock_user_doc = Mock()
             mock_user_doc.exists = True
             mock_user_doc.to_dict.return_value = {
                 'id': 'test-user-id',
                 'status': 'active'
-                # No spaceId
+                # No spaceIds
             }
             mock_user_doc.id = 'test-user-id'
             
@@ -298,7 +298,7 @@ class TestDashboardMetrics:
             
             # Assertions
             assert response.status_code == 400
-            assert response.json()['detail'] == "Partner space ID not found in user profile"
+            assert response.json()['detail'] == "Partner space IDs not found in user profile"
         finally:
             app.dependency_overrides = {}
     
@@ -322,6 +322,51 @@ class TestDashboardMetrics:
         # Assertions
         assert response.status_code == 401
         assert "Invalid token" in response.json()['detail']
+
+    def test_get_dashboard_metrics_with_space_ids_query_param(
+        self, 
+        client, 
+        mock_amplitude_service,
+        mock_verify_firebase_token
+    ):
+        """Test successful dashboard metrics retrieval with space_ids query parameter."""
+        # Override the dependency for this test
+        import src.coworkly_partner_api.api.dashboard_metrics as dashboard_metrics_module
+        app.dependency_overrides[dashboard_metrics_module.verify_firebase_token] = mock_verify_firebase_token
+        
+        try:
+            # Mock Amplitude metrics response
+            mock_amplitude_service.get_dashboard_metrics.return_value = {
+                'profileViews': 200,
+                'favoritesAdded': 80,
+                'favoritesRemoved': 20,
+                'markerTaps': 150,
+                'listViewTaps': 120,
+                'reviewsBrowsed': 60,
+                'reviewsAdded': 15,
+                'externalLinks': 25
+            }
+            
+            # Make request with space_ids query parameter
+            response = client.get(
+                "/dashboard-metrics/?space_ids=space1&space_ids=space2&space_ids=space3",
+                headers={"Authorization": "Bearer test-token"}
+            )
+            
+            # Assertions
+            assert response.status_code == 200
+            data = response.json()
+            assert data['profileViews'] == 200
+            assert data['favoritesAdded'] == 80
+            
+            # Verify calls with space_ids parameter
+            mock_amplitude_service.get_dashboard_metrics.assert_called_once()
+            call_args = mock_amplitude_service.get_dashboard_metrics.call_args
+            assert call_args[0][0] == ['space1', 'space2', 'space3']  # space_ids
+            assert call_args[1]['start_date'] is None
+            assert call_args[1]['end_date'] is None
+        finally:
+            app.dependency_overrides = {}
 
 
 class TestAmplitudeService:
