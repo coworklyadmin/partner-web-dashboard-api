@@ -377,6 +377,7 @@ class TestAmplitudeService:
         """Test Amplitude service initialization without credentials."""
         mock_settings.AMPLITUDE_API_KEY = ""
         mock_settings.AMPLITUDE_SECRET_KEY = ""
+        mock_settings.FERNET_KEY = ""
         
         with pytest.raises(ValueError, match="Amplitude API credentials not configured"):
             AmplitudeService()
@@ -389,6 +390,7 @@ class TestAmplitudeService:
         mock_settings.AMPLITUDE_API_KEY = "test-api-key"
         mock_settings.AMPLITUDE_SECRET_KEY = "test-secret-key"
         mock_settings.AMPLITUDE_BASE_URL = "https://amplitude.com/api/2/segmentation"
+        mock_settings.FERNET_KEY = "test-fernet-key"
         
         # Mock API response
         mock_response = Mock()
@@ -416,6 +418,7 @@ class TestAmplitudeService:
         mock_settings.AMPLITUDE_API_KEY = "test-api-key"
         mock_settings.AMPLITUDE_SECRET_KEY = "test-secret-key"
         mock_settings.AMPLITUDE_BASE_URL = "https://amplitude.com/api/2/segmentation"
+        mock_settings.FERNET_KEY = "test-fernet-key"
         
         # Mock API response
         mock_response = Mock()
@@ -451,6 +454,7 @@ class TestAmplitudeService:
         mock_settings.AMPLITUDE_API_KEY = "test-api-key"
         mock_settings.AMPLITUDE_SECRET_KEY = "test-secret-key"
         mock_settings.AMPLITUDE_BASE_URL = "https://amplitude.com/api/2/segmentation"
+        mock_settings.FERNET_KEY = "test-fernet-key"
         
         # Mock API response for multiple events
         mock_response = Mock()
@@ -489,6 +493,7 @@ class TestAmplitudeService:
         mock_settings.AMPLITUDE_API_KEY = "test-api-key"
         mock_settings.AMPLITUDE_SECRET_KEY = "test-secret-key"
         mock_settings.AMPLITUDE_BASE_URL = "https://amplitude.com/api/2/segmentation"
+        mock_settings.FERNET_KEY = "test-fernet-key"
         
         # Mock API error response
         mock_response = Mock()
@@ -510,6 +515,7 @@ class TestAmplitudeService:
         mock_settings.AMPLITUDE_API_KEY = "test-api-key"
         mock_settings.AMPLITUDE_SECRET_KEY = "test-secret-key"
         mock_settings.AMPLITUDE_BASE_URL = "https://amplitude.com/api/2/segmentation"
+        mock_settings.FERNET_KEY = "test-fernet-key"
         
         service = AmplitudeService()
         

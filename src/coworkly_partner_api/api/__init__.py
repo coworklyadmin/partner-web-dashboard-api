@@ -5,11 +5,13 @@ from .posts import router as posts_router
 from .features import router as features_router
 from .health import router as health_router
 from .dashboard_metrics import router as dashboard_metrics_router
+from .partner_profiles import router as partner_profiles_router
 
 __all__ = [
     "spaces_router",
     "posts_router", 
     "features_router",
     "health_router",
-    "dashboard_metrics_router"
+    "dashboard_metrics_router",
+    "partner_profiles_router"
 ] 

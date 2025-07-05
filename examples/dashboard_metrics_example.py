@@ -23,6 +23,7 @@ def setup_environment():
     # These would normally be set in your deployment environment
     os.environ.setdefault("AMPLITUDE_API_KEY", "your_amplitude_api_key")
     os.environ.setdefault("AMPLITUDE_SECRET_KEY", "your_amplitude_secret_key")
+    os.environ.setdefault("FERNET_KEY", "your_fernet_encryption_key")
     os.environ.setdefault("FIREBASE_PROJECT_ID", "your_firebase_project_id")
 
 

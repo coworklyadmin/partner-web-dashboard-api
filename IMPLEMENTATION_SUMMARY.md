@@ -236,6 +236,7 @@ Authorization: Bearer <firebase-id-token>
 ```bash
 # Required
 AMPLITUDE_API_KEY=your_amplitude_api_key
+FERNET_KEY=your_fernet_encryption_key
 AMPLITUDE_SECRET_KEY=your_amplitude_secret_key
 
 # Optional

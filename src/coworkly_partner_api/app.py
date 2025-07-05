@@ -8,7 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from .services.auth import initialize_firebase
-from .api import spaces_router, posts_router, features_router, health_router, dashboard_metrics_router
+from .api import spaces_router, posts_router, features_router, health_router, dashboard_metrics_router, partner_profiles_router
 from .utils.config import settings
 
 # Initialize Firebase
@@ -64,4 +64,5 @@ app.include_router(spaces_router)
 app.include_router(posts_router)
 app.include_router(features_router)
 app.include_router(health_router)
-app.include_router(dashboard_metrics_router) 
+app.include_router(dashboard_metrics_router)
+app.include_router(partner_profiles_router) 

@@ -42,4 +42,21 @@ async def verify_firebase_token(authorization: str = Header(None)):
         
         return uid
     except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
+
+
+async def get_user_info(authorization: str = Header(None)):
+    """Verify Firebase ID token and return user info (uid and email)."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    
+    try:
+        # Remove 'Bearer ' prefix if present
+        token = authorization.replace('Bearer ', '')
+        decoded_token = auth.verify_id_token(token)
+        uid = decoded_token['uid']
+        email = decoded_token.get('email', '')
+        
+        return {"uid": uid, "email": email}
+    except Exception as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}") 

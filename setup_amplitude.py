@@ -12,6 +12,7 @@ Usage:
 import os
 import getpass
 from pathlib import Path
+from cryptography.fernet import Fernet
 
 
 def setup_amplitude_credentials():
@@ -42,8 +43,15 @@ def setup_amplitude_credentials():
         print("   ❌ Secret Key is required!")
         return False
     
+    # Generate Fernet Key
+    print("\n3. Fernet Encryption Key")
+    print("   - Generating a secure encryption key for URL encryption")
+    
+    fernet_key = Fernet.generate_key().decode()
+    print(f"   ✅ Generated Fernet key: {fernet_key[:16]}...")
+    
     # Optional: Custom base URL
-    print("\n3. Amplitude Base URL (Optional)")
+    print("\n4. Amplitude Base URL (Optional)")
     print("   - Default: https://analytics.amplitude.com/api/2/events/segmentation")
     
     base_url = input("   Enter custom base URL (or press Enter for default): ").strip()
@@ -55,6 +63,9 @@ def setup_amplitude_credentials():
 AMPLITUDE_API_KEY={api_key}
 AMPLITUDE_SECRET_KEY={secret_key}
 AMPLITUDE_BASE_URL={base_url}
+
+# Encryption Configuration
+FERNET_KEY={fernet_key}
 
 # Firebase Configuration (update these as needed)
 FIREBASE_PROJECT_ID=your_firebase_project_id
@@ -80,10 +91,11 @@ DEBUG=true
     os.environ["AMPLITUDE_API_KEY"] = api_key
     os.environ["AMPLITUDE_SECRET_KEY"] = secret_key
     os.environ["AMPLITUDE_BASE_URL"] = base_url
+    os.environ["FERNET_KEY"] = fernet_key
     
     print("\n🎉 Setup Complete!")
     print("=" * 50)
-    print("Your Amplitude credentials are now configured.")
+    print("Your Amplitude credentials and encryption key are now configured.")
     print("\nNext steps:")
     print("1. Update FIREBASE_PROJECT_ID in .env file")
     print("2. Ensure service-account-key.json is in place")
@@ -101,6 +113,7 @@ def verify_credentials():
     api_key = os.getenv("AMPLITUDE_API_KEY")
     secret_key = os.getenv("AMPLITUDE_SECRET_KEY")
     base_url = os.getenv("AMPLITUDE_BASE_URL")
+    fernet_key = os.getenv("FERNET_KEY")
     
     if not api_key:
         print("❌ AMPLITUDE_API_KEY not set")
@@ -110,9 +123,14 @@ def verify_credentials():
         print("❌ AMPLITUDE_SECRET_KEY not set")
         return False
     
+    if not fernet_key:
+        print("❌ FERNET_KEY not set")
+        return False
+    
     print(f"✅ AMPLITUDE_API_KEY: {api_key[:8]}...")
     print(f"✅ AMPLITUDE_SECRET_KEY: {secret_key[:8]}...")
     print(f"✅ AMPLITUDE_BASE_URL: {base_url}")
+    print(f"✅ FERNET_KEY: {fernet_key[:16]}...")
     
     return True
 

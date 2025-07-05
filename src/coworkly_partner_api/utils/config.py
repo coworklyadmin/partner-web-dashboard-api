@@ -63,6 +63,9 @@ class Settings:
         "AMPLITUDE_BASE_URL",
         "https://amplitude.com/api/2/segmentation"
     )
+    
+    # Encryption Configuration
+    FERNET_KEY: str = os.getenv("FERNET_KEY", "")
 
 
 settings = Settings() 

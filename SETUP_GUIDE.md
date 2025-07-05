@@ -70,6 +70,9 @@ AMPLITUDE_SECRET_KEY=your_amplitude_secret_key_here
 # Optional: Custom Amplitude base URL
 AMPLITUDE_BASE_URL=https://analytics.amplitude.com/api/2/events/segmentation
 
+# Encryption Configuration
+FERNET_KEY=your_fernet_encryption_key_here
+
 # Firebase Configuration
 FIREBASE_PROJECT_ID=your_firebase_project_id
 FIREBASE_SERVICE_ACCOUNT_KEY_PATH=service-account-key.json
@@ -86,14 +89,17 @@ DEBUG=true
 # macOS/Linux
 export AMPLITUDE_API_KEY="your_amplitude_api_key_here"
 export AMPLITUDE_SECRET_KEY="your_amplitude_secret_key_here"
+export FERNET_KEY="your_fernet_encryption_key_here"
 
 # Windows (Command Prompt)
 set AMPLITUDE_API_KEY=your_amplitude_api_key_here
 set AMPLITUDE_SECRET_KEY=your_amplitude_secret_key_here
+set FERNET_KEY=your_fernet_encryption_key_here
 
 # Windows (PowerShell)
 $env:AMPLITUDE_API_KEY="your_amplitude_api_key_here"
 $env:AMPLITUDE_SECRET_KEY="your_amplitude_secret_key_here"
+$env:FERNET_KEY="your_fernet_encryption_key_here"
 ```
 
 ### 4. **Firebase Configuration**

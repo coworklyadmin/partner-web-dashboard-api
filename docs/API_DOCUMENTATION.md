@@ -326,6 +326,56 @@ Fetch all posts for a specific space.
 
 ---
 
+### Partner Profiles
+
+#### POST /partner-profiles/
+
+Create a new partner profile for a space. Only the user whose Firebase Auth email matches the space's contact email can create a profile for that space.
+
+**Authentication:**
+
+- Requires a valid Firebase ID token in the `Authorization` header.
+
+**Request Body:**
+
+```json
+{
+  "hashedSpaceId": "<Fernet-encrypted-space-id>"
+}
+```
+
+- `hashed_space_id`: The Fernet-encrypted space ID, as provided in the registration link parameter `a`.
+
+**How it works:**
+
+- The backend decrypts the space ID.
+- The backend fetches the user's email from the Firebase Auth token.
+- The backend fetches the space document and checks the contact email.
+- The backend only creates the partner profile if the emails match.
+
+**Response:**
+
+```json
+{
+  "id": "<profile_id>",
+  "email": "user@example.com",
+  "spaceIds": ["space123"],
+  "status": "active",
+  "createdAt": "2024-06-15T12:00:00Z",
+  "updatedAt": "2024-06-15T12:00:00Z"
+}
+```
+
+**Error Responses:**
+
+- `400 Bad Request`: Invalid or missing encrypted space ID
+- `403 Forbidden`: User email does not match the space's contact email
+- `404 Not Found`: Space not found
+- `409 Conflict`: Partner profile already exists for this space
+- `500 Internal Server Error`: Server error
+
+---
+
 ### Features
 
 #### GET /features

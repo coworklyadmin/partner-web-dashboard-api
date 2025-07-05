@@ -109,6 +109,7 @@ The following environment variables must be set:
 ```bash
 # Amplitude API credentials
 AMPLITUDE_API_KEY=your_amplitude_api_key
+FERNET_KEY=your_fernet_encryption_key
 AMPLITUDE_SECRET_KEY=your_amplitude_secret_key
 
 # Optional: Custom Amplitude base URL
