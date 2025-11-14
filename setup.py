@@ -15,7 +15,7 @@ setup(
     name="coworkly-partner-api",
     version="1.0.0",
     author="CoWorkly Team",
-    author_email="team@coworkly.io",
+    author_email="team@coworkly.com",
     description="Partner Dashboard API for CoWorkly",
     long_description=long_description,
     long_description_content_type="text/markdown",
